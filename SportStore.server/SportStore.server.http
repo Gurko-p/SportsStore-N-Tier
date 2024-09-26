@@ -1,0 +1,6 @@
+@SportStore.server_HostAddress = http://localhost:5169
+
+GET {{SportStore.server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
