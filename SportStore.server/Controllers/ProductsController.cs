@@ -23,23 +23,28 @@ public class ProductsController(DataManager dataManager) : ControllerBase
         return Ok(products);
     }
 
-    [HttpGet]
+    [HttpGet] 
     [Route("list/chunk")]
-    public async Task<IActionResult> ProductsChunk(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> ProductsChunk(int page = 1, int pageSize = 10, int? filterByCategoryId = 0)
     {
         var products =
             await dataManager.Products.Query()
+                .Where(x => filterByCategoryId == 0 || x.CategoryId == filterByCategoryId)
+                .AsNoTracking()
                 .Include(x => x.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-        return Ok(products);
-    }
 
-    [HttpGet("totalCount")]
-    public async Task<ActionResult<int>> GetItemsCount()
-    {
-        return await dataManager.Products.Query().CountAsync();
+        var totalProducts = await dataManager.Products.Query()
+            .CountAsync(x => filterByCategoryId == 0 
+                             || x.CategoryId == filterByCategoryId);
+
+        return Ok(new
+        {
+            TotalCount = totalProducts,
+            Products = products
+        });
     }
 
 
