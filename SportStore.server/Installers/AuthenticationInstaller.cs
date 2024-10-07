@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using SportStore.server.Helpers;
 
 namespace SportStore.server.Installers
 {
@@ -28,6 +29,8 @@ namespace SportStore.server.Installers
                                 System.Text.Encoding.UTF8.GetBytes(configuration["JwtSettings:SecurityKey"]!))
                     };
                 });
+            services.AddScoped<JwtHelper>();
+
             return services;
         }
     }

@@ -1,6 +1,5 @@
 using DataLayer.Data.Infrastructure;
 using DataLayer.Data.SeedData;
-using SportStore.server.Helpers;
 using SportStore.server.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +10,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerConfiguration();
 
-builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddDataAccess(configuration);
 
 builder.Services.AddCors(options =>
@@ -24,9 +22,6 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddAuthenticationConfiguration(configuration);
 builder.Services.AddAuthorization();
-
-// custom services
-
 
 var app = builder.Build();
 
