@@ -52,6 +52,24 @@ public class ProductsController(DataManager dataManager) : ControllerBase
                 .Include(x => x.Category)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    x.Price,
+                    x.Description,
+                    x.Stock,
+                    x.CategoryId,
+                    x.Category,
+                    Rating = x.Ratings != null && x.Ratings.Count > 0
+                        ?
+                        new
+                        {
+                            TotalRates = x.Ratings.Count,
+                            OverallRating = x.Ratings.Average(a => a.RatingValue)
+                        }
+                        : null
+                })
                 .ToListAsync();
 
         var totalProducts = await dataManager.Products.Query()
