@@ -7,6 +7,9 @@ public class Product
     public decimal Price { get; set; }
     public string? Description { get; set; }
     public int Stock { get; set; }
+
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
+
+    public ICollection<Rating>? Ratings { get; set; }
 }

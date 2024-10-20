@@ -190,5 +190,27 @@ public static class SeedData
             );
             await context.SaveChangesAsync();
         }
+
+        // Проверка и добавление рейтинга
+        if (!await context.Ratings.AnyAsync())
+        {
+            await context.Ratings.AddRangeAsync(
+                        new Rating()
+                        {
+                            ProductId = 1,
+                            RatingValue = 4,
+                            UserId = "admin@example.com",
+                            CreatedAt = DateTime.Now
+                        },
+                        new Rating()
+                        {
+                            ProductId = 1,
+                            RatingValue = 5,
+                            UserId = "admin@example.com",
+                            CreatedAt = DateTime.Now
+                        }
+                    );
+            await context.SaveChangesAsync();
+        }
     }
 }

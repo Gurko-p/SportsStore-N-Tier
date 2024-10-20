@@ -16,14 +16,32 @@ public class ProductsController(DataManager dataManager) : ControllerBase
     [Route("list")]
     public async Task<IActionResult> Products()
     {
-        var products = 
-            await dataManager.Products.Query()
-                .Include(x => x.Category)
-                .ToListAsync();
+        var products =
+                await dataManager.Products.Query()
+                    .Include(x => x.Category)
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                        x.Price,
+                        x.Description,
+                        x.Stock,
+                        x.CategoryId,
+                        x.Category,
+                        Rating = x.Ratings != null && x.Ratings.Count > 0
+                            ? 
+                            new
+                            {
+                                TotalRates = x.Ratings.Count,
+                                OverallRating = x.Ratings.Average(a => a.RatingValue)
+                            }
+                            : null
+                    })
+                    .ToListAsync();
         return Ok(products);
     }
 
-    [HttpGet] 
+    [HttpGet]
     [Route("list/chunk")]
     public async Task<IActionResult> ProductsChunk(int page = 1, int pageSize = 10, int? filterByCategoryId = 0)
     {
@@ -37,7 +55,7 @@ public class ProductsController(DataManager dataManager) : ControllerBase
                 .ToListAsync();
 
         var totalProducts = await dataManager.Products.Query()
-            .CountAsync(x => filterByCategoryId == 0 
+            .CountAsync(x => filterByCategoryId == 0
                              || x.CategoryId == filterByCategoryId);
 
         return Ok(new
