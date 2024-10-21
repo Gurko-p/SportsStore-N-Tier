@@ -1,5 +1,6 @@
 using DataLayer.Data.Infrastructure;
 using DataLayer.Data.SeedData;
+using SportStore.server.Hubs;
 using SportStore.server.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,14 +15,16 @@ builder.Services.AddDataAccess(configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin", o => 
-        o.WithOrigins("http://localhost:3000")
+    options.AddPolicy("AllowSpecificOrigin", o =>
+            o.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
 
 builder.Services.AddAuthenticationConfiguration(configuration);
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<ProductRatingHub>();
 
 var app = builder.Build();
 
@@ -30,15 +33,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseCors("AllowSpecificOrigin");
-
 await IdentitySeedData.EnsurePopulatedAsync(app, configuration);
 await SeedData.EnsurePopulatedAsync(app);
 
-app.MapControllers();
+app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigin");
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ProductRatingHub>("/ratingHub");
+    endpoints.MapControllers();
+});
 
 app.Run();

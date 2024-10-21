@@ -1,15 +1,20 @@
-﻿using DataLayer.Data.Infrastructure;
+﻿using System.Diagnostics;
+using DataLayer.Data.Infrastructure;
 using DataLayer.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using SportStore.server.Requests;
+using SportStore.server.Hubs;
 
 namespace SportStore.server.Controllers;
 
 [Route("api/products")]
 [ApiController]
-[Authorize]
-public class ProductsController(DataManager dataManager) : ControllerBase
+//[Authorize]
+public class ProductsController(DataManager dataManager, ProductRatingHub hub) : ControllerBase
 {
 
     [HttpGet]
@@ -81,6 +86,26 @@ public class ProductsController(DataManager dataManager) : ControllerBase
             TotalCount = totalProducts,
             Products = products
         });
+    }
+
+    [HttpPost("rate")]
+    public async Task<IActionResult> RateProduct([FromBody] ProductRating ratingDto)
+    {
+        //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //var rating = new Rating()
+        //{
+        //    RatingValue = ratingDto.Rating,
+        //    CreatedAt = DateTime.Now,
+        //    ProductId = ratingDto.ProductId,
+        //    UserId = userId
+        //};
+
+        ratingDto.Rating = await dataManager.ApplicationDbContext.Ratings
+            .Where(x => x.ProductId == ratingDto.ProductId)
+            .AverageAsync(x => x.RatingValue);
+
+        await hub.NotifyUsersRatingChanged(ratingDto);
+        return NoContent();
     }
 
 
