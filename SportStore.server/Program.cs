@@ -16,9 +16,10 @@ builder.Services.AddDataAccess(configuration);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", o =>
-            o.AllowAnyOrigin()
+            o.WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 builder.Services.AddAuthenticationConfiguration(configuration);
@@ -33,19 +34,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 await IdentitySeedData.EnsurePopulatedAsync(app, configuration);
 await SeedData.EnsurePopulatedAsync(app);
 
-app.UseHttpsRedirection();
-
 app.UseCors("AllowSpecificOrigin");
-app.UseRouting();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHub<ProductRatingHub>("/ratingHub");
-    endpoints.MapControllers();
-});
+app.MapControllers();
+app.MapHub<ProductRatingHub>("/ratingHub");
 
 app.Run();
