@@ -10,6 +10,7 @@ public class DataManager : IDisposable
     public readonly IRepository<Cart> Carts;
     public readonly IRepository<Order> Orders;
     public readonly IRepository<Product> Products;
+    public readonly IRatingRepository Ratings;
     public readonly ApplicationDbContext ApplicationDbContext;
 
     public DataManager(
@@ -17,6 +18,7 @@ public class DataManager : IDisposable
         IRepository<Cart> orderItems,
         IRepository<Order> orders,
         IRepository<Product> products,
+        IRatingRepository ratings,
         ApplicationDbContext applicationDbContext
         )
     {
@@ -24,6 +26,7 @@ public class DataManager : IDisposable
         Carts = orderItems;
         Orders = orders;
         Products = products;
+        Ratings = ratings;
         ApplicationDbContext = applicationDbContext;
     }
 

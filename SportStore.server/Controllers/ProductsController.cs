@@ -13,7 +13,7 @@ namespace SportStore.server.Controllers;
 
 [Route("api/products")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class ProductsController(DataManager dataManager, ProductRatingHub hub) : ControllerBase
 {
 
@@ -91,14 +91,16 @@ public class ProductsController(DataManager dataManager, ProductRatingHub hub) :
     [HttpPost("rate")]
     public async Task<IActionResult> RateProduct([FromBody] ProductRating ratingDto)
     {
-        //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //var rating = new Rating()
-        //{
-        //    RatingValue = ratingDto.Rating,
-        //    CreatedAt = DateTime.Now,
-        //    ProductId = ratingDto.ProductId,
-        //    UserId = userId
-        //};
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var rating = new Rating()
+        {
+            RatingValue = ratingDto.Rating,
+            CreatedAt = DateTime.Now,
+            ProductId = ratingDto.ProductId,
+            UserId = userId
+        };
+
+        await dataManager.Ratings.SetProductRatingAsync(rating);
 
         ratingDto.Rating = await dataManager.ApplicationDbContext.Ratings
             .Where(x => x.ProductId == ratingDto.ProductId)

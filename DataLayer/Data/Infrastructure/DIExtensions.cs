@@ -17,6 +17,7 @@ namespace DataLayer.Data.Infrastructure
             services.AddScoped<IRepository<Cart>, CartRepository>();
             services.AddScoped<IRepository<Order>, OrderRepository>();
             services.AddScoped<IRepository<Product>, ProductRepository>();
+            services.AddScoped<IRatingRepository, RatingRepository>();
             services.AddScoped<DataManager>();
             return services;
         }
