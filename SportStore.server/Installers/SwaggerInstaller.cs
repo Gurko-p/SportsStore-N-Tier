@@ -15,7 +15,7 @@ public static class SwaggerInstaller
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey
             });
-            options.OperationFilter<SecurityRequirementsOperationFilter>();
+            options.OperationFilter<SecurityRequirementsOperationFilter>(false);
         });
         return services;
     }
