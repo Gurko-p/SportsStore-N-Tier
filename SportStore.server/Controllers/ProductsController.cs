@@ -106,6 +106,9 @@ public class ProductsController(DataManager dataManager, ProductRatingHub hub) :
             .Where(x => x.ProductId == ratingDto.ProductId)
             .AverageAsync(x => x.RatingValue);
 
+        ratingDto.RatingCount = await dataManager.ApplicationDbContext.Ratings
+            .CountAsync(x => x.ProductId == ratingDto.ProductId);
+
         await hub.NotifyUsersRatingChanged(ratingDto);
         return NoContent();
     }
