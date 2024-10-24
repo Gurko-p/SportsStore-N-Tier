@@ -71,7 +71,7 @@ public class ProductsController(DataManager dataManager, ProductRatingHub hub) :
                         new
                         {
                             TotalRates = x.Ratings.Count,
-                            OverallRating = x.Ratings.Average(a => a.RatingValue)
+                            OverallRating = Math.Round(x.Ratings.Average(a => a.RatingValue), 1)
                         }
                         : null
                 })
@@ -92,7 +92,7 @@ public class ProductsController(DataManager dataManager, ProductRatingHub hub) :
     public async Task<IActionResult> RateProduct([FromBody] ProductRating ratingDto)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var rating = new Rating()
+        var rating = new Rating
         {
             RatingValue = ratingDto.Rating,
             CreatedAt = DateTime.Now,
@@ -102,11 +102,13 @@ public class ProductsController(DataManager dataManager, ProductRatingHub hub) :
 
         await dataManager.Ratings.SetProductRatingAsync(rating);
 
-        ratingDto.Rating = await dataManager.ApplicationDbContext.Ratings
+        var newRating = await dataManager.Ratings
+            .Query()
             .Where(x => x.ProductId == ratingDto.ProductId)
             .AverageAsync(x => x.RatingValue);
 
-        ratingDto.RatingCount = await dataManager.ApplicationDbContext.Ratings
+        ratingDto.Rating = Math.Round(newRating, 1);
+        ratingDto.RatingCount = await dataManager.Ratings.Query()
             .CountAsync(x => x.ProductId == ratingDto.ProductId);
 
         await hub.NotifyUsersRatingChanged(ratingDto);

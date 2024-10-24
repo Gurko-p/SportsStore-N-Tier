@@ -11,4 +11,9 @@ public class RatingRepository(ApplicationDbContext context) : IRatingRepository
         await context.Ratings.AddAsync(item);
         await context.SaveChangesAsync();
     }
+
+    public IQueryable<Rating> Query()
+    {
+        return context.Ratings.AsQueryable();
+    }
 }
